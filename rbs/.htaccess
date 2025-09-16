@@ -1,11 +1,18 @@
-# Allow GET, POST, OPTIONS
-<Limit GET POST OPTIONS>
-    Require all granted
-</Limit>
-
-# Enable CORS for your frontend
-<IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "https://yatharth-production.up.railway.app"
-    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
+
+<IfModule mod_headers.c>
+    Header Always Set Access-Control-Allow-Origin "https://yatharth-production.up.railway.app"
+    Header Always Set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header Always Set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+</IfModule>
+
+# Allow GET, POST, OPTIONS requests for api.php
+<Files "api.php">
+    <Limit GET POST OPTIONS>
+        Require all granted
+    </Limit>
+</Files>
