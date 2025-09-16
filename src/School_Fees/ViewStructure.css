@@ -6,6 +6,8 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #fafafa;
   animation: fadeIn 0.9s ease-in-out;
+  padding: 15px;
+  box-sizing: border-box;
 }
 
 /* Heading */
@@ -20,13 +22,14 @@
 /* Form container */
 .view-form {
   background: #fff;
-  padding: 20px 30px;
+  padding: 20px 25px;
   border-radius: 12px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  margin: 20px auto;
+  margin: 0 auto 20px auto;
   width: 100%;
   max-width: 600px;
   animation: slideInLeft 1.2s ease-in-out;
+  box-sizing: border-box;
 }
 
 .view-form label {
@@ -46,6 +49,7 @@
   border-radius: 8px;
   outline: none;
   transition: 0.2s;
+  box-sizing: border-box;
 }
 
 .view-form select:focus,
@@ -80,6 +84,8 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   animation: fadeIn 1.2s ease-in-out;
+  margin: 0 auto 20px auto;
+  box-sizing: border-box;
 }
 
 .table-wrapper h3 {
@@ -99,17 +105,18 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  table-layout: fixed;
+  table-layout: auto;
+  min-width: 600px;
 }
 
 .structure-table th,
 .structure-table td {
-  padding: 8px 12px;
+  padding: 10px 12px;
   border: 1px solid #ddd;
   font-size: 14px;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .structure-table th {
@@ -139,4 +146,83 @@
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-30px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .view-form {
+    padding: 15px 20px;
+  }
+  .view-structure h2 {
+    font-size: 22px;
+  }
+  .view-form button {
+    width: 100%;
+    padding: 10px;
+  }
+  .structure-table th,
+  .structure-table td {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile → Card View */
+@media (max-width: 600px) {
+  .table-wrapper {
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .structure-table {
+    border: none;
+    display: block;
+    min-width: 100%;
+  }
+
+  .structure-table thead {
+    display: none;
+  }
+
+  .structure-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .structure-table tr {
+    display: block;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 16px;
+    padding: 15px 20px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .structure-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border: none;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .structure-table td:last-child {
+    border-bottom: none;
+  }
+
+  .structure-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #2575fc;
+    flex: 1;
+    margin-right: 10px;
+  }
 }

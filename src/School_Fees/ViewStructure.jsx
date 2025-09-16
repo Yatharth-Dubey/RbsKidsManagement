@@ -12,7 +12,7 @@ export const ViewStructure = () => {
     const classsession = sessionStorage.getItem("sessionkey")
     const fetchclasses = async () => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         setclasses(response.data.result || []);
       } catch (error) {
         console.log("Error fetching classes:", error);
@@ -29,7 +29,7 @@ export const ViewStructure = () => {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=view-structure`, {
         classid,
         classsession,
-      });
+      }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       console.log(response.data);
       if (response.data.status === "yes") {
         setClassReport(response.data.result); // ✅ save result into report state
@@ -105,21 +105,21 @@ export const ViewStructure = () => {
               <tbody>
                 {classReport.map((row, idx) => (
                   <tr key={idx}>
-                    <td>{row.classno}</td>
-                    <td>{row.class}</td>
-                    <td>{row.classsession}</td>
-                    <td>{row.january}</td>
-                    <td>{row.february}</td>
-                    <td>{row.march}</td>
-                    <td>{row.april}</td>
-                    <td>{row.may}</td>
-                    <td>{row.june}</td>
-                    <td>{row.july}</td>
-                    <td>{row.august}</td>
-                    <td>{row.september}</td>
-                    <td>{row.october}</td>
-                    <td>{row.november}</td>
-                    <td>{row.december}</td>
+                    <td data-label="Class No">{row.classno}</td>
+                    <td data-label="Class">{row.class}</td>
+                    <td data-label="Session">{row.classsession}</td>
+                    <td data-label="January">{row.january}</td>
+                    <td data-label="February">{row.february}</td>
+                    <td data-label="March">{row.march}</td>
+                    <td data-label="April">{row.april}</td>
+                    <td data-label="May">{row.may}</td>
+                    <td data-label="June">{row.june}</td>
+                    <td data-label="July">{row.july}</td>
+                    <td data-label="August">{row.august}</td>
+                    <td data-label="September">{row.september}</td>
+                    <td data-label="October">{row.october}</td>
+                    <td data-label="November">{row.november}</td>
+                    <td data-label="December">{row.december}</td>
                   </tr>
                 ))}
               </tbody>

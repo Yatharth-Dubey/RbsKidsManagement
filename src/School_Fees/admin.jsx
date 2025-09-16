@@ -12,10 +12,16 @@ export const Admin = () => {
     let logkey = keyRef.current.value;
     let sessionkey = sessionRef.current.value;
     sessionStorage.setItem("sessionkey", sessionkey);
+
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=admin`, {logkey});
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api.php?endpoint=admin`,
+        { logkey }
+      );
+
       console.log(response.data);
       sessionStorage.setItem("token", response.data.token);
+
       if (response.data.status) {
         alert("✅ Admin Login Successful");
         navi("/StudentReg");
@@ -35,17 +41,15 @@ export const Admin = () => {
       <section className="admsec">
         <h2 className="adm-title">🔑 Admin Login</h2>
         <input type="password" placeholder="Enter Login Key..." ref={keyRef} />
-        <select ref={sessionRef} name="session" defaultValue="">
-          <option value="" disabled>
-            Enter Session (2025-26)
-          </option>
+        <select ref={sessionRef} defaultValue="">
+          <option value="" disabled>Choose Session</option>
           <option value="2025-26">2025-26</option>
           <option value="2026-27">2026-27</option>
           <option value="2027-28">2027-28</option>
           <option value="2028-29">2028-29</option>
           <option value="2029-30">2029-30</option>
         </select>
-        <button onClick={handleAdmin}>Enter</button>
+        <button onClick={handleAdmin}>🚀 Enter</button>
       </section>
     </div>
   )

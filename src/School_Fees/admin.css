@@ -6,16 +6,22 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Full page gradient background */
+/* Full page animated gradient background */
 .adm {
   height: 100vh;
   width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(-45deg, #667eea, #764ba2, #6b8dd6, #9b6dd6);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
 
-  /* Modern gradient background */
-  background: linear-gradient(135deg, #667eea, #764ba2);
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Login Card */
@@ -27,82 +33,115 @@
   width: 350px;
   border-radius: 20px;
 
-  /* Glassmorphism effect */
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 /* Title */
 .adm-title {
   color: #fff;
-  font-size: 24px;
+  font-size: 26px;
   margin-bottom: 25px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
+  letter-spacing: 1px;
 }
 
-.admsec > select{
+/* Input & Select */
+.admsec > input,
+.admsec > select {
   width: 100%;
-  height: 45px;
-  margin-bottom: 20px;
-  padding: 12px;
+  height: 48px;
+  margin-bottom: 18px;
+  padding: 12px 15px;
   border-radius: 25px;
   font-size: 16px;
-  text-align: center;
   border: none;
   outline: none;
-  justify-content: center;
-
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
-}
-
-.admsec > select > option{
-  color: #764ba2;
-  background-color: #9198b7;
-}
-
-/* Input */
-.admsec > input {
-  width: 100%;
-  height: 45px;
-  margin-bottom: 20px;
-  padding: 12px;
-  border-radius: 25px;
-  font-size: 16px;
   text-align: center;
-  border: none;
-  outline: none;
+  transition: 0.3s;
+}
 
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
+.admsec > input:focus,
+.admsec > select:focus {
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
 }
 
 .admsec > input::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.admsec > select > option {
+  color: #333;
+  background-color: #f0f0f0;
+}
+
 /* Button */
 .admsec > button {
   width: 100%;
-  height: 48px;
+  height: 50px;
   border-radius: 25px;
   border: none;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-
-  background: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: #fff;
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
 }
 
 .admsec > button:hover {
   transform: translateY(-2px) scale(1.05);
-  background: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #5a6be0, #6d3c97);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .admsec {
+    width: 80%;
+    padding: 30px 20px;
+  }
+
+  .adm-title {
+    font-size: 22px;
+  }
+
+  .admsec > button {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admsec {
+    width: 90%;
+    padding: 25px 15px;
+  }
+
+  .adm-title {
+    font-size: 20px;
+  }
+
+  .admsec > input,
+  .admsec > select {
+    font-size: 14px;
+    height: 42px;
+  }
+
+  .admsec > button {
+    height: 45px;
+    font-size: 15px;
+  }
 }

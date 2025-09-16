@@ -1,43 +1,54 @@
 import React, { useEffect, useRef, useState } from "react";
-import './Report.css'
-import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import "./Report.css";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import axios from "axios";
+
 export const Report = () => {
-  const [view, setView] = useState("class"); // "class" | "student" | "fee"
+  const [view, setView] = useState("class"); // "class" | "student" | "fee" | "Monthfee"
   const [studentReport, setStudentReport] = useState([]);
   const [monthReport, setMonthReport] = useState([]);
   const [classReport, setClassReport] = useState([]);
-  const [classes, setclasses] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [feeStatus, setFeeStatus] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
-  const [selectedmonth, setSelectedMonth] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
+
   const classref = useRef();
   const monthref = useRef();
+
   const months = [
-    "january", "february", "march", "april",
-    "may", "june", "july", "august",
-    "september", "october", "november", "december"
+    "january","february","march","april",
+    "may","june","july","august",
+    "september","october","november","december"
   ];
+
   useEffect(() => {
     let classsession = sessionStorage.getItem("sessionkey");
-    const fetchclasses = async () => {
-      try{
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession});
-        setclasses(response.data.result || []);
-      }catch(error){
+    const fetchClasses = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`,
+          { classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
+        );
+        setClasses(response.data.result || []);
+      } catch (error) {
         console.log("Error fetching classes:", error);
-        setclasses([]);
+        setClasses([]);
       }
     };
-    fetchclasses();
+    fetchClasses();
   }, []);
+
   const handleClass = async () => {
     let classsession = sessionStorage.getItem("sessionkey");
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {
-        classsession,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`,
+        { classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
+      );
       if (response.data.status === "yes") {
         setClassReport(response.data.result);
         setView("class");
@@ -50,13 +61,14 @@ export const Report = () => {
       console.error("Error:", error);
     }
   };
+
   const handleFetchStudent = async (classid, classsession) => {
     setSelectedClass({ classid, classsession });
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=FetchStudents`, {
-        classid,
-        classsession,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FetchStudents`,
+        { classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
+      );
       if (response.data.status === "yes") {
         setStudentReport(response.data.result);
         setView("student");
@@ -68,34 +80,99 @@ export const Report = () => {
       console.error("Error:", error);
     }
   };
-  const handlemonthfeestatus = async () => {
+
+  const handleMonthFeeStatus = async () => {
     const classid = classref.current.value;
     const classsession = sessionStorage.getItem("sessionkey");
     const month_name = monthref.current.value;
-    try{
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=FeeMonthStatus`, {
-        classid,
-        classsession,
-        month_name
-      });
-      setSelectedClass({classid, classsession})
-      if(response.data.status === "yes"){
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FeeMonthStatus`,
+        { classid, classsession, month_name }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
+      );
+      setSelectedClass({ classid, classsession });
+      if (response.data.status === "yes") {
         setMonthReport(response.data.result);
         setView("Monthfee");
       }
-    }catch(error){
+    } catch (error) {
       alert("⚠️ Server error, please try again later!");
     }
-  }
+  };
+
+  const handleReceipt = async (rollno, studentname, classid, classsession) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FeesReceipt`,
+        { rollno, studentname, classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
+      );
+      if (response.data.status === "yes") {
+        const { student, fees } = response.data;
+        const paidFees = fees.filter((f) => f.status === "Paid");
+
+        if (paidFees.length === 0) {
+          alert("⚠️ No paid fees found for this student!");
+          return;
+        }
+
+        const doc = new jsPDF();
+        doc.setFontSize(20);
+        doc.text("RBS Public School", 105, 13, { align: "center" });
+        doc.setFontSize(18);
+        doc.text("Fee Receipt", 105, 22, { align: "center" });
+
+        doc.setFontSize(12);
+        doc.text(`Roll No: ${student.rollno}`, 20, 32);
+        doc.text(`Student Name: ${student.studentname}`, 20, 40);
+        doc.text(`Class: ${student.classid}`, 20, 50);
+        doc.text(`Session: ${student.classsession}`, 20, 60);
+
+        const tableData = paidFees.map((f) => [
+          f.month_name,
+          f.amount,
+          f.status,
+          f.timeRecord,
+        ]);
+
+        autoTable(doc, {
+          startY: 70,
+          head: [["Month", "Amount", "Status", "Date"]],
+          body: tableData,
+          theme: "grid",
+          styles: { halign: "center" },
+          headStyles: { fillColor: [41, 128, 185] },
+          didParseCell: function (data) {
+            if (data.column.index === 1 && data.cell.section === "body") {
+              data.cell.styles.textColor = [0, 128, 0];
+            }
+          },
+        });
+
+        doc.setFontSize(10);
+        doc.text(
+          "This is a system-generated receipt. School stamp necessary.",
+          105,
+          doc.internal.pageSize.height - 10,
+          { align: "center" }
+        );
+
+        doc.save(`FeeReceipt_${student.studentname}_${student.rollno}.pdf`);
+      } else {
+        alert("⚠️ " + response.data.message);
+      }
+    } catch (error) {
+      alert("⚠️ Server error, please try again later");
+      console.log("Error:", error);
+    }
+  };
+
   const handleFeeStatus = async (rollno, studentname, classid, classsession) => {
     setSelectedStudent({ rollno, studentname, classid, classsession });
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=FeeStatusFetch`, {
-        rollno,
-        studentname,
-        classid,
-        classsession,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FeeStatusFetch`,
+        { rollno, studentname, classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
+      );
       if (response.data.status === "yes") {
         setFeeStatus(response.data.result);
         setView("fee");
@@ -108,6 +185,7 @@ export const Report = () => {
       console.error("Error:", error);
     }
   };
+
   return (
     <div>
       <div className="Reportslate">
@@ -121,7 +199,12 @@ export const Report = () => {
         <div className="Reportbox">
           <h3 className="label">🔍 Fees Report</h3>
           <br />
-          <select className="select_options" ref={classref} required onChange={(e) => setSelectedClass(e.target.value)}>
+          <select
+            className="select_options"
+            ref={classref}
+            required
+            onChange={(e) => setSelectedClass(e.target.value)}
+          >
             <option value="">Select Class</option>
             {classes.map((cls) => (
               <option key={cls.classno} value={cls.class}>
@@ -129,7 +212,12 @@ export const Report = () => {
               </option>
             ))}
           </select>
-          <select className="select_options" ref={monthref} required onChange={(e) => setSelectedMonth(e.target.value)}>
+          <select
+            className="select_options"
+            ref={monthref}
+            required
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
             <option value="">Select Month</option>
             {months.map((mth, idx) => (
               <option key={idx} value={mth}>
@@ -137,16 +225,18 @@ export const Report = () => {
               </option>
             ))}
           </select>
-          <button className="regbtn" onClick={handlemonthfeestatus}>
+          <button className="regbtn" onClick={handleMonthFeeStatus}>
             Check
           </button>
         </div>
       </div>
-      <div className="class-registered">
+
+      <div className={`class-registered ${["Monthfee","fee"].includes(view) ? "large" : ""}`}>
         {view === "class" && classReport.length > 0 && (
           <>
-          <br />
-            <h3>📊 Registered Classes</h3><br />
+            <br />
+            <h3>📊 Registered Classes</h3>
+            <br />
             <div className="table-container">
               <table className="report-table">
                 <thead>
@@ -174,10 +264,14 @@ export const Report = () => {
             </div>
           </>
         )}
+
         {view === "Monthfee" && (
           <>
-          <br />
-            <h3>📊 Month Fees Status ({selectedClass.classid} - {selectedClass.classsession})</h3><br />
+            <br />
+            <h3>
+              📊 Month Fees Status ({selectedClass.classid} - {selectedClass.classsession})
+            </h3>
+            <br />
             <div className="table-container">
               <table className="report-table">
                 <thead>
@@ -185,8 +279,8 @@ export const Report = () => {
                     <th>Roll No.</th>
                     <th>Student Name</th>
                     <th>Month</th>
-                    <th>Fees Status</th>
                     <th>Time and Date</th>
+                    <th>Fees Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -195,25 +289,29 @@ export const Report = () => {
                       <td>{mth.rollno}</td>
                       <td>{mth.studentname}</td>
                       <td>{mth.month_name}</td>
-                      <td style={{color: mth.status === "Paid" ? "green" : "red"}}>{mth.status}</td>
                       <td>{mth.timeRecord}</td>
+                      <td style={{ color: mth.status === "Paid" ? "green" : "red" }}>
+                        {mth.status}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {/* ✅ Pie chart */}
-              {monthReport.length > 0 && (() => {
-                const paidCount = monthReport.filter((m) => m.status === "Paid").length;
-                const unpaidCount = monthReport.filter((m) => m.status !== "Paid").length;
+            </div>
 
-                const data = [
-                  { name: "Paid", value: paidCount },
-                  { name: "Unpaid", value: unpaidCount },
-                ];
-                const COLORS = ["#4caf50", "#f44336"];
-                return (
-                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-                    <PieChart width={400} height={300}>
+            {/* ✅ Responsive Pie chart */}
+            {monthReport.length > 0 && (() => {
+              const paidCount = monthReport.filter((m) => m.status === "Paid").length;
+              const unpaidCount = monthReport.filter((m) => m.status !== "Paid").length;
+              const data = [
+                { name: "Paid", value: paidCount },
+                { name: "Unpaid", value: unpaidCount },
+              ];
+              const COLORS = ["#4caf50", "#f44336"];
+              return (
+                <div className="chart-container">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
                       <Pie
                         data={data}
                         cx="50%"
@@ -223,22 +321,33 @@ export const Report = () => {
                         label
                       >
                         {data.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
                       <Legend />
                     </PieChart>
-                  </div>
-                );})()}
-            </div>
+                  </ResponsiveContainer>
+                </div>
+              );
+            })()}
           </>
         )}
+
         {view === "student" && (
           <>
-          <br />
-            <button className="backbtn" onClick={() => setView("class")}>⬅ Back to Classes</button><br />
-            <h3>📊 Registered Students ({selectedClass.classid} - {selectedClass.classsession})</h3><br />
+            <br />
+            <button className="backbtn" onClick={() => setView("class")}>
+              ⬅ Back to Classes
+            </button>
+            <br />
+            <h3>
+              📊 Registered Students ({selectedClass.classid} - {selectedClass.classsession})
+            </h3>
+            <br />
             <div className="table-container">
               <table className="report-table">
                 <thead>
@@ -270,20 +379,37 @@ export const Report = () => {
                   ))}
                 </tbody>
               </table>
+              <br />
             </div>
           </>
         )}
+
         {view === "fee" && (
           <>
-          <br />
+            <br />
             <button className="backbtn" onClick={() => setView("student")}>
               ⬅ Back to Students
             </button>
+            <br />
+            <button
+              onClick={() =>
+                handleReceipt(
+                  selectedStudent.rollno,
+                  selectedStudent.studentname,
+                  selectedStudent.classid,
+                  selectedStudent.classsession
+                )
+              }
+              className="downloadbtn"
+            >
+              ⬇️ Get Fees Receipt
+            </button>
+            <br />
             <h3>
-              📊 Fees Status for {selectedStudent.studentname}(
-              {selectedStudent.rollno}) ({selectedStudent.classid} -{" "}
-              {selectedStudent.classsession})
-            </h3><br />
+              📊 Fees Status for {selectedStudent.studentname} ({selectedStudent.rollno}) (
+              {selectedStudent.classid} - {selectedStudent.classsession})
+            </h3>
+            <br />
             <div className="table-container">
               {Array.isArray(feeStatus) && feeStatus.length > 0 ? (
                 <table className="report-table">

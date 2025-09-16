@@ -57,89 +57,6 @@
   color: red;
 }
 
-.stu-registered{
-  background: #fff;
-  padding: 20px 30px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  margin-bottom: 30px;
-  margin-top: 40px;
-  animation: slideInLeft 1.5s ease-in-out;
-}
-.stu-registered > h2{
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-.stu-registered > button{
-  margin-bottom: 6px;
-  font-size: 16px;
-  font-weight: 600;
-  background: #007bff;
-  box-shadow: 5px 5px 15px rgba(132, 176, 176, 0.537);
-  color: #fff;
-  padding: 12px 18px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s all ease;
-  text-align: left;
-  opacity: 0; /* hidden at start */
-  animation: slideInLeft 1.5s ease forwards;
-}
-.stu-registered > button:hover{
-  background: #0056b3; 
-  transform: scale(1.1);
-}
-
-.class-registered {
-  width: 100%;
-  max-width: 800px;      /* keep it smaller, adjust as needed */
-  margin: 10px auto;     /* less gap outside */
-  padding: 8px 12px;     /* reduced padding inside */
-  background: #fff;
-  border-radius: 6px;    /* smaller rounded corners */
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08); /* lighter shadow */
-}
-
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.report-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  table-layout: fixed;   /* zaroori hai columns ko resize karne ke liye */
-}
-
-.report-table th,
-.report-table td {
-  padding: 6px 10px;
-  border: 1px solid #ddd;
-  font-size: 13px;
-  overflow: hidden;       /* text cutoff */
-  text-overflow: ellipsis;/* agar jagah kam ho to ... show */
-}
-
-.report-table th {
-  background: #f1f1f1;
-  font-weight: 600;
-  position: relative;     /* resize handle ke liye */
-  user-select: none;      /* text select na ho handle kheenchne pe */
-}
-
-.resizer {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 5px;
-  height: 100%;
-  cursor: col-resize;
-  user-select: none;
-}
-
 /* Sidebar + Main content wrapper */
 .layout {
   text-align: center;
@@ -147,6 +64,7 @@
   flex: 1;
   min-height: 100vh /* below header */
 }
+
 /* Sidebar */
 .sidenav {
   width: 280px;
@@ -196,21 +114,51 @@
 .sidenav button:nth-child(6) { animation-delay: 1.3s; }
 
 .sidenav button:hover { 
-  /* border: 1.5px solid #88f7d3; */
   background: #0056b3;
 }
+
+/* Mobile nav inside sidebar */
+.mobile-nav {
+  display: none;
+  margin-top: 20px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.mobile-nav li {
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.mobile-nav li:hover {
+  background: #ddd;
+  border-radius: 6px;
+}
+
+.mobile-nav .logout {
+  color: red;
+}
+
 /* Main Section */
 .sect {
   flex: 1;
-  background: #fafafa;
+  background: linear-gradient(-45deg, #add9df, #e3f2fd, #f1f8ff, #c3e3fa);
+  background-size: 400% 400%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   padding: 50px 20px;
-  animation: fadeIn 0.9s ease-in-out;
+  animation: fadeIn 0.9s ease-in-out, gradientBG 20s ease infinite;;
 }
-
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 .sect h2 {
   font-size: 26px;
   margin-bottom: 25px;
@@ -245,10 +193,6 @@
   border-radius: 8px;
   outline: none;
   transition: 0.2s;
-}
-
-select:focus {
-  border-color: #007bff;
 }
 
 #classreg{
@@ -290,4 +234,69 @@ select:focus {
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-30px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+/* Hide toggle on desktop */
+.menu-toggle {
+  display: none;
+}
+
+/* Responsive styles for tablets & mobiles */
+@media (max-width: 1024px) {
+  /* Show toggle button */
+  .menu-toggle {
+    display: block;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+  }
+
+  /* Hide desktop nav on mobile */
+  .headstu ul {
+    display: none;
+  }
+
+  /* Sidebar hidden by default */
+  .sidenav {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 250px;
+    height: 100%;
+    background: #ebebec;
+    z-index: 1000;
+    transition: left 0.3s ease-in-out;
+  }
+
+  /* Sidebar active */
+  body.sidenav-open .sidenav {
+    left: 0;
+  }
+
+  /* Show mobile nav inside sidebar */
+  .mobile-nav {
+    display: block;
+  }
+
+  /* Inputs stack instead of side by side */
+  .selectors {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #classreg, #select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidenav {
+    width: 220px;
+  }
+
+  .headstu h1 {
+    font-size: 18px;
+  }
 }

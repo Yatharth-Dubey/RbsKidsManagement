@@ -22,7 +22,7 @@ export const Fees = () => {
     const classsession = sessionStorage.getItem("sessionkey")
     const fetchclasses = async () => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         setclasses(response.data.result || []);
       } catch (error) {
         console.log("Error fetching classes:", error);
@@ -45,8 +45,12 @@ export const Fees = () => {
     let classsession = sessionref.current.value;
     const fetchmonths = async () => {
       try{
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=Already-Submitted`, {rollno, studentname, classid, classsession});
-        setsubmittedMonths(response.data.result || []);
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=Already-Submitted`, {rollno, studentname, classid, classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+        if(response && response.data){
+          setsubmittedMonths(response.data.result || []);
+        }else{
+          console.error("Unexpected Api response: ", response);
+        }
       }catch(error){
         console.log("Error fetching Months:", error);
         setsubmittedMonths([]);
@@ -56,7 +60,7 @@ export const Fees = () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=Check`, {
         rollno, studentname, classid: selectedClass, classsession
-      });
+      }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.status) {
         setMonthReport(response.data.result);
         alert("✅Select the month(s) for the fees submission");
@@ -122,13 +126,10 @@ const handleMonthSelect = (monthIndex) => {
         selectedMonths: adjustedMonths,  // ✅ send correct month
         total: total,              // ✅ use tracked total fees
         timeRecord: timeStamp
-      });
+      }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.status) {
         alert(`✅ Fees Submitted Successfully. Total: ₹${total}`);
         const doc = new jsPDF();
-        const image = new Image();
-        image.src = "/kratos.jpg";
-        doc.addImage(image, "JPG", 20, 10, 30, 30);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(20);
         doc.text("RBS School Fees Receipt", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
@@ -146,10 +147,10 @@ const handleMonthSelect = (monthIndex) => {
             [paidMonths, `₹${total}`, timeStamp]
           ]
         });
-        doc.text(`Total Paid: ₹${total}`, 20, 280);
-        doc.text(`Date/Time: ${timeStamp}`, 20, 290);
+        doc.text(`Total Paid: ₹${total}`, 20, 250);
+        doc.text(`Date/Time: ${timeStamp}`, 20, 260);
         doc.setFontSize(8)
-        doc.text("This is a computer-generated receipt.This is not valid without the school's official stamp", 20, 300)
+        doc.text("This is a computer-generated receipt.This is not valid without the school's official stamp", 20, 270)
         console.log("Generating PDF..."); // ✅ debug
         setTimeout(() => {
           doc.save(`fees_${rollno}.pdf`);
@@ -173,7 +174,7 @@ const handleMonthSelect = (monthIndex) => {
     const classid = classref.current.value;
     const classsession = sessionref.current.value;
     try{
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=fetchStudent`, {rollno, classid, classsession});
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=fetchStudent`, {rollno, classid, classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.result && response.data.result.length > 0) {
         setstudent(response.data.result[0].studentname); // ✅ only take the name
       } else {

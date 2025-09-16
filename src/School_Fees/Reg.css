@@ -1,3 +1,4 @@
+/* ==================== Overlay ==================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -14,9 +15,13 @@
   animation: fadeInOverlay 0.6s ease forwards;
 }
 
+/* ==================== Container ==================== */
 .reg-container {
-  width: 700px;
+  max-width: 700px;
+  width: 95%;
   padding: 25px;
+  margin: auto;
+  margin-bottom: 100px;
   background: rgba(198, 233, 245, 0.25);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -26,7 +31,6 @@
   opacity: 0;
   transform: translateY(-30px);
   animation: slideFadeIn 0.8s ease forwards;
-  margin-bottom: 100px;
 }
 
 .reg-container h2 {
@@ -38,13 +42,13 @@
   animation-delay: 0.4s;
 }
 
+/* ==================== Form Sections ==================== */
 .form-section {
   margin-bottom: 20px;
   opacity: 0;
   animation: fadeInUp 0.8s ease forwards;
 }
 
-/* Staggered sections */
 .form-section:nth-of-type(1) { animation-delay: 0.6s; }
 .form-section:nth-of-type(2) { animation-delay: 0.8s; }
 .form-section:nth-of-type(3) { animation-delay: 1s; }
@@ -56,9 +60,10 @@
   padding-left: 8px;
 }
 
+/* ==================== Grid Layout ==================== */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* two columns */
+  grid-template-columns: 1fr 1fr;
   gap: 15px;
 }
 
@@ -68,10 +73,11 @@
 }
 
 .address-field {
-  grid-column: span 2; /* make address take full width */
+  grid-column: span 2;
 }
 
-.form-grid > div  input,
+/* ==================== Inputs & Selects ==================== */
+.form-grid > div input,
 .reg-form select,
 .reg-form textarea,
 .class-session {
@@ -85,18 +91,44 @@
   transition: all 0.3s ease;
 }
 
-.upload-section{
-  padding: 10px;
+.form-grid > div > input:hover,
+textarea:hover,
+select:hover {
+  border-color: #4a90e2;
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+  transform: scale(1.02);
+}
+
+.form-grid > div > input:focus,
+textarea:focus,
+select:focus {
+  border-color: #0066cc;
+  box-shadow: 0 0 10px rgba(0, 102, 204, 0.5);
+  transform: scale(1.02);
+}
+
+/* ==================== Upload Section ==================== */
+.upload-section {
+  padding: 15px;
   margin-top: 30px;
-  border: 1px black solid;
-  border-radius: 50px;
+  border: 2px dashed #6a11cb;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
   animation: fadeInUp 0.8s ease forwards;
   animation-delay: 0.5s;
 }
 
-.bulk-btn{
+.upload-section:hover {
+  border-color: #2575fc;
+  box-shadow: 0 0 10px rgba(106, 17, 203, 0.3);
+  transform: scale(1.02);
+}
+
+/* ==================== Buttons ==================== */
+.bulk-btn,
+.submit-btn {
   margin-top: 20px;
-  width: 50%;
   padding: 12px;
   background: linear-gradient(90deg, #6a11cb, #2575fc);
   color: white;
@@ -110,53 +142,21 @@
   animation-delay: 1.2s;
 }
 
-.form-grid > div > input:hover, textarea:hover, select:hover {
-  border-color: #4a90e2;
-  box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
-  transform: scale(1.02);
-}
-
-.form-grid > div > input:focus, textarea:focus, select:focus {
-  border-color: #0066cc;
-  box-shadow: 0 0 10px rgba(0, 102, 204, 0.5);
+.bulk-btn {
+  width: 50%;
 }
 
 .submit-btn {
-  margin-top: 20px;
   width: 100%;
-  padding: 12px;
-  background: linear-gradient(90deg, #6a11cb, #2575fc);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s ease-in-out;
-  opacity: 0;
-  animation: fadeInUp 0.8s ease forwards;
-  animation-delay: 1.2s;
 }
 
+.bulk-btn:hover,
 .submit-btn:hover {
   transform: scale(1.08);
   background: linear-gradient(90deg, #2575fc, #6a11cb);
 }
 
-/* Animations */
-@keyframes fadeInOverlay {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideFadeIn {
-  from { opacity: 0; transform: translateY(-30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* ==================== Fees Table (PC) ==================== */
 .fees-table {
   width: 100%;
   border-collapse: collapse;
@@ -167,7 +167,19 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.month-table >input{
+.fees-table th,
+.fees-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.fees-table th {
+  background: linear-gradient(90deg, #6b11cbe3, #2575fc);
+  color: white;
+}
+
+.month-table > input {
   width: 80%;
   padding: 10px;
   margin-bottom: 1px;
@@ -192,13 +204,82 @@
   box-shadow: 0 0 10px rgba(0, 102, 204, 0.5);
 }
 
-.fees-table th, .fees-table td {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
+/* ==================== Animations ==================== */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.fees-table th {
-  background: linear-gradient(90deg, #6b11cbe3, #2575fc);
-  color: white;
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+  /* Grid layout */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .address-field {
+    grid-column: span 1;
+  }
+  .bulk-btn {
+    width: 100%;
+  }
+
+  /* ===== Card style for Fees Table ===== */
+  .fees-table,
+  .fees-table thead,
+  .fees-table tbody,
+  .fees-table th,
+  .fees-table td,
+  .fees-table tr {
+    display: block;
+  }
+
+  .fees-table thead {
+    display: none;
+  }
+
+  .fees-table tr {
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .fees-table td {
+    border: none;
+    padding: 8px 0;
+    text-align: left;
+    position: relative;
+    font-size: 15px;
+  }
+
+  .fees-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+    color: #2980b9;
+  }
+
+  .month-table input {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }

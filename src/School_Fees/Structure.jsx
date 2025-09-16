@@ -25,7 +25,7 @@ export const Structure = () => {
       const classsession = sessionStorage.getItem("sessionkey");
       const fetchclasses = async () => {
         try {
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession});
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
           setClasses(response.data.result || []);
         } catch (error) {
           console.log("Error fetching classes:", error);
@@ -58,7 +58,7 @@ export const Structure = () => {
         classsession: sessionStorage.getItem("sessionkey"),
         ...feesData,
         timeRecord: timeStamp
-      });
+      }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.status) {
         alert("✅ Fees Structure Saved Successfully");
         setFeesData({});
@@ -107,8 +107,8 @@ export const Structure = () => {
           <tbody>
             {monthsList.map((month, idx) => (
               <tr key={idx}>
-                <td>{month}</td>
-                <td className="month-table">
+                <td data-label="Month">{month}</td>
+                <td data-label="Fees" className="month-table">
                   <input
                     type="number"
                     placeholder="Enter Fees"

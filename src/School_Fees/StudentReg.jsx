@@ -8,6 +8,10 @@ function StudentReg() {
   const classref = useRef();
   const sessionref = useRef();
   const [timeRecord, settimeRecord] = useState("");
+
+  const closeSidebar = () => {
+    document.body.classList.remove("sidenav-open");
+  };
   // Register Class
   const handleRegister = async () => {
     let classid = classref.current.value;
@@ -25,7 +29,7 @@ function StudentReg() {
         classid,
         classsession,
         timeRecord: timeStamp,
-      });
+      }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.status) {
         alert("✅ Class Registered");
         navigate("/StudentReg/Structure");
@@ -37,28 +41,36 @@ function StudentReg() {
   };
   // Navigation
   const handleReport = () => {
+    closeSidebar();
     navigate("/StudentReg/Report");
   };
   const handleFeesCreate = () => {
+    closeSidebar();
     navigate("/StudentReg/Structure");
     sessionStorage.removeItem("classid");
   };
   const handleFees = () => {
+    closeSidebar();
     navigate("/StudentReg/Fees");
   };
   const handleCreate = () => {
+    closeSidebar();
     navigate("/StudentReg/Reg");
   };
   const handleViewStructure = () => {
+    closeSidebar();
     navigate("/StudentReg/ViewStructure");
   };
   const handleHome = () => {
+    closeSidebar();
     navigate("/StudentReg");
   };
   const handleAbout = () => {
+    closeSidebar();
     navigate("/StudentReg/About")
   }
   const handleLogout = () => {
+    closeSidebar();
     sessionStorage.clear();
     navigate("/");
   };
@@ -72,9 +84,17 @@ function StudentReg() {
       {/* Header */}
       <header className="headstu">
         <div className="logo-section">
-          <img src="kratos.jpg" alt="school_logo" />
+          <img src="/IronLogo.png" alt="school_logo" />
           <h1>RBS PUBLIC SCHOOL</h1>
         </div>
+        {/* Mobile Menu Toggle */}
+        <button
+          className="menu-toggle"
+          onClick={() => document.body.classList.toggle("sidenav-open")}
+        >
+          ☰
+        </button>
+
         <ul>
           <li onClick={handleHome}>Home</li>
           <li onClick={handleAbout}>About Dev</li>
@@ -87,11 +107,18 @@ function StudentReg() {
       <div className="layout">
         {/* Sidebar */}
         <aside className="sidenav">
-          <button onClick={handleCreate}>🧑‍🎓 Create Student</button>
-          <button onClick={handleFeesCreate}>🧑‍💻 Create Fees Structure</button>
-          <button onClick={handleFees}>💵 Fees Submission Portal</button>
-          <button onClick={handleViewStructure}>💹 Fees Structure</button>
-          <button onClick={handleReport}>📟 Student Fees Report</button>
+          <button type="button" onClick={handleCreate}>🧑‍🎓 Create Student</button>
+          <button type="button" onClick={handleFeesCreate}>🧑‍💻 Create Fees Structure</button>
+          <button type="button" onClick={handleFees}>💵 Fees Submission Portal</button>
+          <button type="button" onClick={handleViewStructure}>💹 Fees Structure</button>
+          <button type="button" onClick={handleReport}>📟 Student Fees Report</button>
+
+          {/* Mobile only nav links */}
+          <ul className="mobile-nav">
+            <li onClick={handleHome}>Home</li>
+            <li onClick={handleAbout}>About Dev</li>
+            <li onClick={handleLogout} className="logout">Log Out</li>
+          </ul>
         </aside>
         {/* Main Content */}
         <section className="sect">
@@ -107,12 +134,12 @@ function StudentReg() {
                     type="text"
                     id="select"
                     ref={sessionref}
-                    value={sessionStorage.getItem("sessionkey" || "")}
+                    value={sessionStorage.getItem("sessionkey") || ""}
                     readOnly
                   />
                 </div>
               </div>
-              <button onClick={handleRegister} className="regbtn">
+              <button type="button" onClick={handleRegister} className="regbtn">
                 Register
               </button>
             </>
