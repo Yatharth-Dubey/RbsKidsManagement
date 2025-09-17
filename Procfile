@@ -1,1 +1,1 @@
-web: heroku-php-apache2
+web: apache2 -f /my-app/apache.conf -DFOREGROUND
