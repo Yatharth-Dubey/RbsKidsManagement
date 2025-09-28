@@ -1,12 +1,27 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './admin.css'
 import axios from 'axios'
+import Swal from 'sweetalert2'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Admin = () => {
   const keyRef = useRef();
   const sessionRef = useRef();
   const navi = useNavigate();
+
+  useEffect(() => {
+    const testServer = async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/ping`);
+        console.log("Server response:", res.data);
+      } catch (err) {
+        console.error("Server not reachable:", err);
+      }
+    };
+    testServer();
+  }, []);
 
   const handleAdmin = async () => {
     let logkey = keyRef.current.value;
@@ -15,7 +30,7 @@ export const Admin = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api.php?endpoint=admin`,
+        `${process.env.REACT_APP_API_URL}/admin`,
         { logkey }
       );
 
@@ -23,14 +38,14 @@ export const Admin = () => {
       sessionStorage.setItem("token", response.data.token);
 
       if (response.data.status) {
-        alert("✅ Admin Login Successful");
+        Swal.fire({icon: "success", title: "Login Successful"});
         navi("/StudentReg");
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        alert("❌ Wrong Credentials");
+        toast.error("❌ Wrong Credentials!");
       } else {
-        alert("⚠️ Server error, please try again later");
+        toast.error("⚠️ Server error, please try again later!");
         console.log("Error:", error);
       }
     }
@@ -38,6 +53,7 @@ export const Admin = () => {
 
   return (
     <div className="adm">
+      <ToastContainer position="top-right" autoClose={2000} />
       <section className="admsec">
         <h2 className="adm-title">🔑 Admin Login</h2>
         <input type="password" placeholder="Enter Login Key..." ref={keyRef} />
@@ -50,6 +66,7 @@ export const Admin = () => {
           <option value="2029-30">2029-30</option>
         </select>
         <button onClick={handleAdmin}>🚀 Enter</button>
+        <p className="dev-credit">👨‍💻 Developed by <strong>Yatharth Dubey</strong></p>
       </section>
     </div>
   )

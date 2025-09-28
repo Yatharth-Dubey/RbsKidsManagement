@@ -1,12 +1,11 @@
 .about-container {
   padding: 40px 20px;
-  background: #f9fafb;
+  background: transparent;
   min-height: 100vh;
   animation: fadeIn 1.2s ease-in-out;
 }
 
 .about-card {
-  background: #fff;
   padding: 40px 30px;
   border-radius: 15px;
   box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
@@ -31,7 +30,26 @@
   margin-bottom: 15px;
   animation: fadeIn 2s ease-in-out;
 }
+.about-card a {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #2980b9; /* blue shade */
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
 
+.about-card a:hover {
+  background: #1f6391; /* darker blue on hover */
+  transform: translateY(-2px);
+}
+
+.about-card a:active {
+  transform: translateY(0);
+}
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }

@@ -4,6 +4,9 @@ import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
 import "./Fees.css";
 import axios from "axios";
+import Swal from 'sweetalert2'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export const Fees = () => {
   const [classes, setclasses] = useState([]);
   const [student, setstudent] = useState();
@@ -22,7 +25,7 @@ export const Fees = () => {
     const classsession = sessionStorage.getItem("sessionkey")
     const fetchclasses = async () => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         setclasses(response.data.result || []);
       } catch (error) {
         console.log("Error fetching classes:", error);
@@ -45,7 +48,7 @@ export const Fees = () => {
     let classsession = sessionref.current.value;
     const fetchmonths = async () => {
       try{
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=Already-Submitted`, {rollno, studentname, classid, classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/Already-Submitted`, {rollno, studentname, classid, classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         if(response && response.data){
           setsubmittedMonths(response.data.result || []);
         }else{
@@ -58,21 +61,21 @@ export const Fees = () => {
     }
     fetchmonths();
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=Check`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/Check`, {
         rollno, studentname, classid: selectedClass, classsession
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.status) {
         setMonthReport(response.data.result);
-        alert("✅Select the month(s) for the fees submission");
+        toast.success("✅Select the month(s) for the fees submission!");
       } else {
         setMonthReport([]);
-        alert("Invalid Access");
+        toast.error("❌ Invalid Access!");
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        alert("❌ Wrong Credentials");
+        toast.error("❌ Wrong Credentials!");
       } else {
-        alert("⚠️ Server error, please try again later");
+        toast.error("⚠️ Server error, please try again later");
         console.log("Error:", error);
       }
     }
@@ -118,7 +121,7 @@ const handleMonthSelect = (monthIndex) => {
       ? selectedMonths[selectedMonths.length - 1] + 1 : 0;
     const adjustedMonths = selectedMonths.map(i => i + 1);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=Submitted`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/Submitted`, {
         rollno,
         studentname,
         classid,
@@ -128,7 +131,7 @@ const handleMonthSelect = (monthIndex) => {
         timeRecord: timeStamp
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.status) {
-        alert(`✅ Fees Submitted Successfully. Total: ₹${total}`);
+        Swal.fire({icon: "success", title: `✅ Fees Submitted Successfully. Total: ₹${total}`})
         const doc = new jsPDF();
         doc.setFont("helvetica", "bold");
         doc.setFontSize(20);
@@ -162,36 +165,38 @@ const handleMonthSelect = (monthIndex) => {
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        alert("❌ Wrong Credentials");
+        toast.error("❌ Wrong Credentials!");
       } else {
-        alert("⚠️ Server error, please try again later");
+        toast.error("⚠️ Server error, please try again later!");
         console.log("Error:", error);
       }
     }
   };
   const handleFetchStudent = async () => {
+    toast.info("ℹ️ Fetching Students...");
     const rollno = rollref.current.value;
     const classid = classref.current.value;
     const classsession = sessionref.current.value;
     try{
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=fetchStudent`, {rollno, classid, classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/fetchStudent`, {rollno, classid, classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       if (response.data.result && response.data.result.length > 0) {
-        setstudent(response.data.result[0].studentname); // ✅ only take the name
+        setstudent(response.data.result[0].studentname);
       } else {
-        alert("No such student is registered. Please Register the Student.");
+        Swal.fire({icon: "warning", title: "No such student is registered. Please Register the Student."});
         navi("/StudentReg/Reg");
       }
     }catch(error){
       if (error.response && error.response.status === 401) {
-        alert("❌ Wrong Credentials");
+        toast.error("❌ Wrong Credentials!");
       } else {
-        alert("⚠️ Server error, please try again later");
+        toast.error("⚠️ Server error, please try again later!");
         console.log("Error:", error);
       }
     }
   }
   return (
     <div className="fees-container">
+      <ToastContainer position="top-right" autoClose={500} />
       <h2>Fees Submission</h2>
       <form className="reg-form">
         {/* Academic Info Section */}

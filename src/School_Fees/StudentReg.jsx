@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import "./StudentReg.css";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import axios from "axios";
+import Swal from 'sweetalert2'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function StudentReg() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,6 +15,52 @@ function StudentReg() {
   const closeSidebar = () => {
     document.body.classList.remove("sidenav-open");
   };
+
+  const handleReset = async () => {
+  closeSidebar();
+
+  const result = await Swal.fire({
+    title: "⚠️ Are you sure?",
+    text: "You want to reset the database. You will be redirected to the Login Page!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, reset it!",
+    cancelButtonText: "No, cancel",
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_URL}/StudentReg/resetDatabase`,
+      {},
+      { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
+    );
+
+    if (response.data.status) {
+      await Swal.fire({
+        icon: "success",
+        title: "✅ Database Reset",
+        text: "Database has been reset successfully! You will be redirected to Login!",
+        confirmButtonColor: "#4caf50",
+      });
+      sessionStorage.clear();
+      navigate("/");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "⚠️ Reset Failed",
+        text: "Could not reset database. Please try again.",
+      });
+      console.error("Reset error:", response.data);
+    }
+  } catch (error) {
+    toast.error("⚠️ Server error, please try again later");
+    console.error("Error:", error);
+  }
+};
   // Register Class
   const handleRegister = async () => {
     let classid = classref.current.value;
@@ -25,17 +74,20 @@ function StudentReg() {
     sessionStorage.setItem("classid", classid);
     sessionStorage.setItem("classsession", classsession);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/register`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/StudentReg/register`, {
         classid,
         classsession,
         timeRecord: timeStamp,
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
-      if (response.data.status) {
-        alert("✅ Class Registered");
+      if (response.data.status === true) {
+        Swal.fire({icon: "success", title: "Class Registered"})
         navigate("/StudentReg/Structure");
+      }else{
+        Swal.fire({icon: "info", title: "This class with the given session is already registered"});
+        navigate("/StudentReg");
       }
     } catch (error) {
-      alert("⚠️ Server error, please try again later");
+      toast.error("⚠️ Server error, please try again later");
       console.error("Error:", error);
     }
   };
@@ -81,6 +133,7 @@ function StudentReg() {
   }, [navigate]);
   return (
     <div className="stu">
+      <ToastContainer position="top-right" autoClose={2000} />
       {/* Header */}
       <header className="headstu">
         <div className="logo-section">
@@ -94,7 +147,6 @@ function StudentReg() {
         >
           ☰
         </button>
-
         <ul>
           <li onClick={handleHome}>Home</li>
           <li onClick={handleAbout}>About Dev</li>
@@ -112,7 +164,7 @@ function StudentReg() {
           <button type="button" onClick={handleFees}>💵 Fees Submission Portal</button>
           <button type="button" onClick={handleViewStructure}>💹 Fees Structure</button>
           <button type="button" onClick={handleReport}>📟 Student Fees Report</button>
-
+          <button type="button" onClick={handleReset}>🔁 Reset Database</button>
           {/* Mobile only nav links */}
           <ul className="mobile-nav">
             <li onClick={handleHome}>Home</li>
@@ -144,6 +196,7 @@ function StudentReg() {
               </button>
             </>
           )}
+          <p onClick={handleAbout} className="dev-credit">👨‍💻 Developed by <strong>Yatharth Dubey</strong></p>
         </section>
       </div>
     </div>

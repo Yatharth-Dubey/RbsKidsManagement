@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import axios from "axios";
 import "./Reg.css";
+import Swal from 'sweetalert2'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export const Reg = () => {
   const [classes, setclasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
@@ -11,7 +14,7 @@ export const Reg = () => {
     let classsession = sessionref.current.value;
     const fetchclasses = async () => {
       try{
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         setclasses(response.data.result || []);
       }catch(error){
         console.log("Error fetching classes:", error);
@@ -46,12 +49,13 @@ export const Reg = () => {
   };
   const handleBulk = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=reg/bulk`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/reg/bulk`, {
         students: excelData, // send all excel rows
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
-      alert("✅ Bulk Upload Done!");
+      Swal.fire({icon: "success", title: "Bulk Upload Done!"});
       console.log(response.data);
     } catch (error) {
+      toast.error("⚠️ Bulk upload error!");
       console.error("Bulk upload error:", error);
     }
   };
@@ -72,17 +76,21 @@ export const Reg = () => {
     let milliseconds = now.getMilliseconds().toString().padStart(3, "0"); // always 3 digits
     let timeStamp = `Date: ${date}, Time: ${time}.${milliseconds}`;
     try{
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=reg`, {rollno, studentname, mothername, fathername, classid, classsession, residence, phone, timeRecord: timeStamp}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/reg`, {rollno, studentname, mothername, fathername, classid, classsession, residence, phone, timeRecord: timeStamp}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       console.log(response.data);
-      if(response.data.status === "yes"){
-        alert("✅Student Registered");
+      if(response.data.status === true){
+        Swal.fire({icon: "success", title: "Student Registered!"});
+        navi("/StudentReg");
+      }
+      else{
+        Swal.fire({icon: "info", title: "Student Already Registered!"});
         navi("/StudentReg");
       }
     }catch(error){
       if (error.response && error.response.status === 401) {
-        alert("❌ Wrong Credentials");
+        toast.error("❌ Wrong Credentials!");
       } else {
-        alert("⚠️ Server error, please try again later");
+        toast.error("⚠️ Server error, please try again later!");
         console.log("Error:", error);
       }
     }
@@ -90,6 +98,7 @@ export const Reg = () => {
   };
   return (
       <div className="reg-container">
+        <ToastContainer position="top-right" autoClose={3000} />
         <h2>Student Registration</h2>
         <form className="reg-form" onSubmit={handleSubmit}>
           {/* Academic Info Section */}

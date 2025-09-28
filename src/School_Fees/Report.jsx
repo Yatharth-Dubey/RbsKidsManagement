@@ -4,6 +4,9 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios";
+import Swal from 'sweetalert2'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Report = () => {
   const [view, setView] = useState("class"); // "class" | "student" | "fee" | "Monthfee"
@@ -30,7 +33,7 @@ export const Report = () => {
     const fetchClasses = async () => {
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`,
+          `${process.env.REACT_APP_API_URL}/StudentReg/fetch`,
           { classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
         );
         setClasses(response.data.result || []);
@@ -46,18 +49,18 @@ export const Report = () => {
     let classsession = sessionStorage.getItem("sessionkey");
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`,
+        `${process.env.REACT_APP_API_URL}/StudentReg/fetch`,
         { classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
       if (response.data.status === "yes") {
         setClassReport(response.data.result);
         setView("class");
       } else {
-        alert("⚠️ No Class Registered");
+        toast.error("⚠️ No Class Registered!");
         setClassReport([]);
       }
     } catch (error) {
-      alert("⚠️ Server error, please try again later");
+      toast.error("⚠️ Server error, please try again later!");
       console.error("Error:", error);
     }
   };
@@ -66,17 +69,17 @@ export const Report = () => {
     setSelectedClass({ classid, classsession });
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FetchStudents`,
+        `${process.env.REACT_APP_API_URL}/FetchStudents`,
         { classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
       if (response.data.status === "yes") {
         setStudentReport(response.data.result);
         setView("student");
       } else {
-        alert("⚠️ No Registered Student Found!");
+        toast.error("⚠️ No Registered Student Found!");
       }
     } catch (error) {
-      alert("⚠️ Server error, please try again later!");
+      toast.error("⚠️ Server error, please try again later!");
       console.error("Error:", error);
     }
   };
@@ -87,7 +90,7 @@ export const Report = () => {
     const month_name = monthref.current.value;
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FeeMonthStatus`,
+        `${process.env.REACT_APP_API_URL}/FeeMonthStatus`,
         { classid, classsession, month_name }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
       setSelectedClass({ classid, classsession });
@@ -96,14 +99,14 @@ export const Report = () => {
         setView("Monthfee");
       }
     } catch (error) {
-      alert("⚠️ Server error, please try again later!");
+      toast.error("⚠️ Server error, please try again later!");
     }
   };
 
   const handleReceipt = async (rollno, studentname, classid, classsession) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FeesReceipt`,
+        `${process.env.REACT_APP_API_URL}/FeesReceipt`,
         { rollno, studentname, classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
       if (response.data.status === "yes") {
@@ -111,7 +114,7 @@ export const Report = () => {
         const paidFees = fees.filter((f) => f.status === "Paid");
 
         if (paidFees.length === 0) {
-          alert("⚠️ No paid fees found for this student!");
+          toast.error("⚠️ No paid fees found for this student!");
           return;
         }
 
@@ -155,13 +158,13 @@ export const Report = () => {
           doc.internal.pageSize.height - 10,
           { align: "center" }
         );
-
+        Swal.fire({icon: "success", title: "Receipt has be downloaded!"});
         doc.save(`FeeReceipt_${student.studentname}_${student.rollno}.pdf`);
       } else {
-        alert("⚠️ " + response.data.message);
+        toast.error("⚠️ " + response.data.message);
       }
     } catch (error) {
-      alert("⚠️ Server error, please try again later");
+      toast.error("⚠️ Server error, please try again later!");
       console.log("Error:", error);
     }
   };
@@ -170,24 +173,51 @@ export const Report = () => {
     setSelectedStudent({ rollno, studentname, classid, classsession });
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api.php?endpoint=FeeStatusFetch`,
+        `${process.env.REACT_APP_API_URL}/FeeStatusFetch`,
         { rollno, studentname, classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
       if (response.data.status === "yes") {
         setFeeStatus(response.data.result);
         setView("fee");
       } else {
-        alert("⚠️ No fee records found!");
+        toast.error("⚠️ No fee records found!");
         setFeeStatus(null);
       }
     } catch (error) {
-      alert("⚠️ Server error, please try again later!");
+      toast.error("⚠️ Server error, please try again later!");
       console.error("Error:", error);
     }
   };
+  const handleMonthRowReceipt = (rollno, studentname, classid, classsession, month_name, amount) => {
+  const doc = new jsPDF();
+  doc.setFontSize(20);
+  doc.text("RBS Public School", 105, 13, { align: "center" });
+  doc.setFontSize(18);
+  doc.text("Fee Receipt", 105, 22, { align: "center" });
+
+  doc.setFontSize(12);
+  doc.text(`Roll No: ${rollno}`, 20, 32);
+  doc.text(`Student Name: ${studentname}`, 20, 40);
+  doc.text(`Class: ${classid}`, 20, 50);
+  doc.text(`Session: ${classsession}`, 20, 60);
+  doc.text(`Month: ${month_name}`, 20, 70);
+  doc.text(`Amount Paid: ${amount}`, 20, 80);
+
+  doc.setFontSize(10);
+  doc.text(
+    "This is a system-generated receipt. School stamp necessary.",
+    105,
+    doc.internal.pageSize.height - 10,
+    { align: "center" }
+  );
+
+  doc.save(`FeeReceipt_${studentname}_${month_name}.pdf`);
+  Swal.fire({ icon: "success", title: "Receipt downloaded!" });
+};
 
   return (
     <div>
+      <ToastContainer position="top-right" autoClose={2000} />
       <div className="Reportslate">
         <div className="Reportbox">
           <h3 className="label">®️ View Registered Classes</h3>
@@ -419,6 +449,7 @@ export const Report = () => {
                       <th>Amount</th>
                       <th>Status</th>
                       <th>Date</th>
+                      <th>Receipt</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -426,14 +457,24 @@ export const Report = () => {
                       <tr key={idx}>
                         <td>{student.month_name}</td>
                         <td>{student.amount}</td>
-                        <td
-                          style={{
-                            color: student.status === "Paid" ? "green" : "red",
-                          }}
-                        >
+                        <td style={{color: student.status === "Paid" ? "green" : "red",}}>
                           {student.status}
                         </td>
-                        <td>{student.timeRecord}</td>
+                        <td>{student.status === "Paid" ? student.timeRecord : "⚠️ Not Available"}</td>
+                        <td>
+                          {student.status === "Paid" && (
+                            <button
+                              className="download-icon"
+                              onClick={() =>
+                                handleMonthRowReceipt(
+                                  student.rollno,
+                                  student.studentname,
+                                  selectedClass.classid,
+                                  selectedClass.classsession,
+                                  student.month_name,
+                                  student.amount )}
+                             title="Download Fee Receipt">💾</button>)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

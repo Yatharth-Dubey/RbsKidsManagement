@@ -1,1 +1,0 @@
-web: apache2 -f /my-app/apache.conf -DFOREGROUND

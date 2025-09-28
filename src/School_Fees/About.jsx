@@ -23,6 +23,7 @@ export const About=()=> {
           My goal is to keep learning and building impactful applications that can
           <strong> automate tasks, save time, and provide seamless user experiences</strong>.
         </p>
+        <a href="https://www.linkedin.com/in/yatharth-dubey-34a532316" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </div>  
     </div>
   );

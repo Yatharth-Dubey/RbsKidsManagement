@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Reg.css";
+import Swal from 'sweetalert2'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export const Structure = () => {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
@@ -25,7 +28,7 @@ export const Structure = () => {
       const classsession = sessionStorage.getItem("sessionkey");
       const fetchclasses = async () => {
         try {
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
           setClasses(response.data.result || []);
         } catch (error) {
           console.log("Error fetching classes:", error);
@@ -53,24 +56,30 @@ export const Structure = () => {
     settimeRecord(timeStamp);
     console.log(timeStamp);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=fees-structure`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/fees-structure`, {
         classid: selectedClass,
         classsession: sessionStorage.getItem("sessionkey"),
         ...feesData,
         timeRecord: timeStamp
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
-      if (response.data.status) {
-        alert("✅ Fees Structure Saved Successfully");
+      if (response.data.status === true) {
+        Swal.fire({icon: "success", title: "Fees Structure Saved Successfully"});
+        setFeesData({});
+        navi("/StudentReg");
+      }
+      else{
+        Swal.fire({icon: "info", title: "Fees Structure Already Exists"});
         setFeesData({});
         navi("/StudentReg");
       }
     } catch (error) {
-      alert("⚠️ Server error, please try again later");
+      toast.error("⚠️ Server error, please try again later!");
       console.log("Error:", error);
     }
   };
   return (
     <div className="reg-container">
+      <ToastContainer position="top-right" autoClose={2000} />
       <h2>Fees Structure</h2>
       {/* Fixed Class & Session */}
       <div className="form-section">

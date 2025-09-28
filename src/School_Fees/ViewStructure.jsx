@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./ViewStructure.css";
 import axios from "axios";
-
+import Swal from 'sweetalert2'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export const ViewStructure = () => {
   const classref = useRef();
   const sessionref = useRef();
@@ -12,7 +14,7 @@ export const ViewStructure = () => {
     const classsession = sessionStorage.getItem("sessionkey")
     const fetchclasses = async () => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         setclasses(response.data.result || []);
       } catch (error) {
         console.log("Error fetching classes:", error);
@@ -26,28 +28,29 @@ export const ViewStructure = () => {
     let classid = classref.current.value;
     let classsession = sessionref.current.value;
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api.php?endpoint=view-structure`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/view-structure`, {
         classid,
         classsession,
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       console.log(response.data);
       if (response.data.status === "yes") {
-        setClassReport(response.data.result); // ✅ save result into report state
+        setClassReport(response.data.result);
       } else {
         setClassReport([]);
-        alert("⚠️ No students found for this class/session");
+        toast.error("⚠️ No students found for this class/session!");
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        alert("❌ Wrong Credentials");
+        toast.error("❌ Wrong Credentials!");
       } else {
-        alert("⚠️ Server error, please try again later");
+        toast.error("⚠️ Server error, please try again later!");
         console.log("Error:", error);
       }
     }
   };
   return (
     <div>
+      <ToastContainer position="top-right" autoClose={2000} />
       <div className="view-structure">
         <h2>View Fees Structure</h2>
         {/* Class Report Form */}

@@ -18,6 +18,20 @@
   animation: gradientBG 15s ease infinite;
 }
 
+.dev-credit {
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 13px;
+  /* color: rgba(151, 133, 133, 0.8); */
+  text-align: center;
+  font-style: italic;
+  background: linear-gradient(-45deg, #31efa0, #ebb36f, #ef125f, #58ec19);
+  -webkit-background-clip: text;   /* Chrome, Safari */
+  -webkit-text-fill-color: transparent; /* Chrome, Safari */
+  background-clip: text;           /* Firefox */
+  color: transparent; 
+}
+
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
