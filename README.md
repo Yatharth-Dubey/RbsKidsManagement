@@ -9,18 +9,13 @@ A full-stack school management system currently used by a real institution to ma
 
 ## 📸 Screenshots
 
-### 🏠 Dashboard
-![Dashboard](./assets/rbs1.png)
-
-### 👨‍🎓 Student Registration
-![Student Form](./assets/rbs2.png)
-
-### 💰 Fees Submission
-![Fees](./assets/rbs3.png)
-
-### 📝 Marksheet Management
-![Marksheet](./assets/rbs4.png)
-
+<p align="center">
+  <img src="./assets/rbs1.png" width="45%" />
+  <img src="./assets/rbs2.png" width="45%" />
+  <img src="./assets/rbs3.png" width="45%" />
+  <img src="./assets/rbs4.png" width="45%" />
+  <img src="./assets/rbs5.png" width="45%" />
+</p>
 ---
 
 ## 🧠 Features
