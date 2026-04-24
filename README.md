@@ -10,11 +10,11 @@ A full-stack school management system currently used by a real institution to ma
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="./assets/rbs1.png" width="45%" />
-  <img src="./assets/rbs2.png" width="45%" />
-  <img src="./assets/rbs3.png" width="45%" />
-  <img src="./assets/rbs4.png" width="45%" />
-  <img src="./assets/rbs5.png" width="45%" />
+  <img src="./src/assets/rbs1.png" width="45%" />
+  <img src="./src/assets/rbs2.png" width="45%" />
+  <img src="./src/assets/rbs3.png" width="45%" />
+  <img src="./src/assets/rbs4.png" width="45%" />
+  <img src="./src/assets/rbs5.png" width="45%" />
 </p>
 ---
 
