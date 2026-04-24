@@ -6,6 +6,21 @@ A full-stack school management system currently used by a real institution to ma
 
 ## Check it out -> https://rbs.eduguruji.com/
 
+
+## 📸 Screenshots
+
+### 🏠 Dashboard
+![Dashboard](./assets/rbs1.png)
+
+### 👨‍🎓 Student Registration
+![Student Form](./assets/rbs2.png)
+
+### 💰 Fees Submission
+![Fees](./assets/rbs3.png)
+
+### 📝 Marksheet Management
+![Marksheet](./assets/rbs4.png)
+
 ---
 
 ## 🧠 Features
