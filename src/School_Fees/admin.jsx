@@ -11,18 +11,6 @@ export const Admin = () => {
   const sessionRef = useRef();
   const navi = useNavigate();
 
-  useEffect(() => {
-    const testServer = async () => {
-      try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/ping`);
-        console.log("Server response:", res.data);
-      } catch (err) {
-        console.error("Server not reachable:", err);
-      }
-    };
-    testServer();
-  }, []);
-
   const handleAdmin = async () => {
     let logkey = keyRef.current.value;
     let sessionkey = sessionRef.current.value;
@@ -30,7 +18,7 @@ export const Admin = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/admin`,
+        `${process.env.REACT_APP_API_URL}api.php?endpoint=admin`,
         { logkey }
       );
 

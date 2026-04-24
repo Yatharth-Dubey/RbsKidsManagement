@@ -7,8 +7,12 @@ import axios from "axios";
 import Swal from 'sweetalert2'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 export const Report = () => {
+  const [schoolInfo, setSchoolInfo] = useState({
+      schoolname: "",
+      schooladd: "",
+      mobno: ""
+    });
   const [view, setView] = useState("class"); // "class" | "student" | "fee" | "Monthfee"
   const [studentReport, setStudentReport] = useState([]);
   const [monthReport, setMonthReport] = useState([]);
@@ -18,22 +22,39 @@ export const Report = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
-
   const classref = useRef();
   const monthref = useRef();
-
   const months = [
-    "january","february","march","april",
-    "may","june","july","august",
-    "september","october","november","december"
+    "april", "may","june","july","august","september","october","november",
+    "december","january","february","march"
   ];
-
+  //school info fetching
+  useEffect(() => {
+    const fetchSchoolInfo = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}api.php?endpoint=getSchoolInfo`,
+          {},
+          { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
+        );
+        if (response.data.status) {
+          setSchoolInfo(response.data.data);
+        } else {
+          console.warn("No school info found");
+        }
+      } catch (error) {
+        console.error("Error fetching school info:", error);
+      }
+    };
+    fetchSchoolInfo();
+  }, []);
+  //class selector option fetchin
   useEffect(() => {
     let classsession = sessionStorage.getItem("sessionkey");
     const fetchClasses = async () => {
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/StudentReg/fetch`,
+          `${process.env.REACT_APP_API_URL}api.php?endpoint=StudentReg/fetch`,
           { classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
         );
         setClasses(response.data.result || []);
@@ -44,15 +65,34 @@ export const Report = () => {
     };
     fetchClasses();
   }, []);
-
+  //single month fees status fetching
+  const handleMonthFeeStatus = async () => {
+    const classid = classref.current.value;
+    const classsession = sessionStorage.getItem("sessionkey");
+    const month_name = monthref.current.value;
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}api.php?endpoint=FeeMonthStatus`,
+        { classid, classsession, month_name }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
+      );
+      setSelectedClass({ classid, classsession });
+      if (response.data.status === "yes") {
+        setMonthReport(response.data.result);
+        setView("Monthfee");
+      }
+    } catch (error) {
+      toast.error("⚠️ Server error, please try again later!");
+    }
+  };
+  //fetching classes with show btn
   const handleClass = async () => {
     let classsession = sessionStorage.getItem("sessionkey");
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/StudentReg/fetch`,
+        `${process.env.REACT_APP_API_URL}api.php?endpoint=StudentReg/fetch`,
         { classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
-      if (response.data.status === "yes") {
+      if (response.data.status === true) {
         setClassReport(response.data.result);
         setView("class");
       } else {
@@ -64,12 +104,12 @@ export const Report = () => {
       console.error("Error:", error);
     }
   };
-
+  //student details fetching on class click
   const handleFetchStudent = async (classid, classsession) => {
     setSelectedClass({ classid, classsession });
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/FetchStudents`,
+        `${process.env.REACT_APP_API_URL}api.php?endpoint=FetchStudents`,
         { classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
       if (response.data.status === "yes") {
@@ -83,100 +123,15 @@ export const Report = () => {
       console.error("Error:", error);
     }
   };
-
-  const handleMonthFeeStatus = async () => {
-    const classid = classref.current.value;
-    const classsession = sessionStorage.getItem("sessionkey");
-    const month_name = monthref.current.value;
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/FeeMonthStatus`,
-        { classid, classsession, month_name }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
-      );
-      setSelectedClass({ classid, classsession });
-      if (response.data.status === "yes") {
-        setMonthReport(response.data.result);
-        setView("Monthfee");
-      }
-    } catch (error) {
-      toast.error("⚠️ Server error, please try again later!");
-    }
-  };
-
-  const handleReceipt = async (rollno, studentname, classid, classsession) => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/FeesReceipt`,
-        { rollno, studentname, classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
-      );
-      if (response.data.status === "yes") {
-        const { student, fees } = response.data;
-        const paidFees = fees.filter((f) => f.status === "Paid");
-
-        if (paidFees.length === 0) {
-          toast.error("⚠️ No paid fees found for this student!");
-          return;
-        }
-
-        const doc = new jsPDF();
-        doc.setFontSize(20);
-        doc.text("RBS Public School", 105, 13, { align: "center" });
-        doc.setFontSize(18);
-        doc.text("Fee Receipt", 105, 22, { align: "center" });
-
-        doc.setFontSize(12);
-        doc.text(`Roll No: ${student.rollno}`, 20, 32);
-        doc.text(`Student Name: ${student.studentname}`, 20, 40);
-        doc.text(`Class: ${student.classid}`, 20, 50);
-        doc.text(`Session: ${student.classsession}`, 20, 60);
-
-        const tableData = paidFees.map((f) => [
-          f.month_name,
-          f.amount,
-          f.status,
-          f.timeRecord,
-        ]);
-
-        autoTable(doc, {
-          startY: 70,
-          head: [["Month", "Amount", "Status", "Date"]],
-          body: tableData,
-          theme: "grid",
-          styles: { halign: "center" },
-          headStyles: { fillColor: [41, 128, 185] },
-          didParseCell: function (data) {
-            if (data.column.index === 1 && data.cell.section === "body") {
-              data.cell.styles.textColor = [0, 128, 0];
-            }
-          },
-        });
-
-        doc.setFontSize(10);
-        doc.text(
-          "This is a system-generated receipt. School stamp necessary.",
-          105,
-          doc.internal.pageSize.height - 10,
-          { align: "center" }
-        );
-        Swal.fire({icon: "success", title: "Receipt has be downloaded!"});
-        doc.save(`FeeReceipt_${student.studentname}_${student.rollno}.pdf`);
-      } else {
-        toast.error("⚠️ " + response.data.message);
-      }
-    } catch (error) {
-      toast.error("⚠️ Server error, please try again later!");
-      console.log("Error:", error);
-    }
-  };
-
+  //fetching paid month on student click
   const handleFeeStatus = async (rollno, studentname, classid, classsession) => {
     setSelectedStudent({ rollno, studentname, classid, classsession });
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/FeeStatusFetch`,
+        `${process.env.REACT_APP_API_URL}api.php?endpoint=FeeStatusFetch`,
         { rollno, studentname, classid, classsession }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},}
       );
-      if (response.data.status === "yes") {
+      if (response.data.status === true) {
         setFeeStatus(response.data.result);
         setView("fee");
       } else {
@@ -188,33 +143,116 @@ export const Report = () => {
       console.error("Error:", error);
     }
   };
-  const handleMonthRowReceipt = (rollno, studentname, classid, classsession, month_name, amount) => {
-  const doc = new jsPDF();
-  doc.setFontSize(20);
-  doc.text("RBS Public School", 105, 13, { align: "center" });
-  doc.setFontSize(18);
-  doc.text("Fee Receipt", 105, 22, { align: "center" });
+  // Number to words function
+  const numToWords = (num) => {
+    const a = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+      "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+    const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+    if ((num = num.toString()).length > 9) return "Overflow";
+    let n = ("000000000" + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if (!n) return;
+    let str = "";
+    str += n[1] != 0 ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " Crore " : "";
+    str += n[2] != 0 ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " Lakh " : "";
+    str += n[3] != 0 ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " Thousand " : "";
+    str += n[4] != 0 ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + " Hundred " : "";
+    str += n[5] != 0 ? (str != "" ? "and " : "") + (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]]) + "" : "";
+    return str.trim() + " Rupees";
+  };
+  //generating fees slip
+  const generatePDF = async (receipt_no) => {
+    try{
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}api.php?endpoint=FeesFetchSlip`, {receipt_no}, {headers:{Authorization:`Bearer ${sessionStorage.getItem("token")}`}});
+      if(response.data.status){
+        const {submittedRecords, totalAmount, receipt_no} = response.data;
+        console.log({ submittedRecords, totalAmount, receipt_no });
+        if (!submittedRecords || submittedRecords.length === 0) {
+          toast.error("No submitted records found");
+          return;
+        }
+        // ✅ Calculate total automatically from months
+        const calculatedTotal = submittedRecords.reduce(
+          (sum, record) => sum + parseFloat(record.amount || 0),
+          0
+        );
+        const finalTotal = totalAmount ? parseFloat(totalAmount) : calculatedTotal;
 
-  doc.setFontSize(12);
-  doc.text(`Roll No: ${rollno}`, 20, 32);
-  doc.text(`Student Name: ${studentname}`, 20, 40);
-  doc.text(`Class: ${classid}`, 20, 50);
-  doc.text(`Session: ${classsession}`, 20, 60);
-  doc.text(`Month: ${month_name}`, 20, 70);
-  doc.text(`Amount Paid: ${amount}`, 20, 80);
+        const firstRecord = submittedRecords[0];
+        const doc = new jsPDF("p", "mm", "a4");
+        const pageWidth = doc.internal.pageSize.getWidth();
+        // Header
 
-  doc.setFontSize(10);
-  doc.text(
-    "This is a system-generated receipt. School stamp necessary.",
-    105,
-    doc.internal.pageSize.height - 10,
-    { align: "center" }
-  );
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text(schoolInfo.schoolname || "Your School Name", pageWidth / 2, 20, { align: "center" });
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.text(schoolInfo.schooladd || "School Address", pageWidth / 2, 27, { align: "center" });
+        doc.text(`Mob: ${schoolInfo.mobno || "0000000000"} | www.${schoolInfo.schoolname}.in`, pageWidth / 2, 32, { align: "center" });
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text(`FEE RECEIPT FOR ACADEMIC SESSION : ${firstRecord.classsession}`, pageWidth / 2, 42, { align: "center" });
+        // Receipt Info
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Receipt No : ${receipt_no}`, 15, 52);
+        doc.text(`Date : ${new Date().toLocaleDateString()}`, pageWidth - 70, 52);
+        doc.text(`Name : ${firstRecord.studentname}`, 15, 60);
+        doc.text(`Father's Name : ${firstRecord.fathername}`, 15, 68);
+        doc.text(`Class : ${firstRecord.classid}`, 15, 76);
+        doc.text(`Roll No : ${firstRecord.rollno}`, pageWidth - 70, 76);
+        // Fee Details Table
+        let tableBody = submittedRecords.map((record, index) => [
+          `${index + 1}`,
+          `${record.month_name.toUpperCase()}`,
+          `Tuition Fee`,
+          `₹${record.amount.toFixed(2)}`
+        ]);
+        autoTable(doc, {
+          startY: 85,
+          head: [["S.No", "Month", "Fee Head", "Amount"]],
+          body: tableBody,
+          theme: "grid",
+          styles: { halign: "center", fontSize: 10 },
+          headStyles: { fillColor: [0, 123, 255] },
+        });
+        let finalY = doc.lastAutoTable.finalY + 5;
+        // Total Amount
+        doc.setFont("helvetica", "bold");
+        doc.text(`Total Rs. ${finalTotal.toFixed(2)}`, 15, finalY + 8);
 
-  doc.save(`FeeReceipt_${studentname}_${month_name}.pdf`);
-  Swal.fire({ icon: "success", title: "Receipt downloaded!" });
-};
-
+        // ✅ Amount in Words
+        doc.setFont("helvetica", "normal");
+        doc.text(`Amount in Words: ${numToWords(finalTotal)} Only`, 15, finalY + 15);
+        // Payment Details Table
+        autoTable(doc, {
+          startY: finalY + 25,
+          head: [["Pay Mode", "Ref. / UPI / Cheque No.", "Date", "Amount"]],
+          body: [[
+            firstRecord.pay_mode,
+            firstRecord.payment_ref || "-",
+            new Date().toLocaleDateString(),
+            `₹${finalTotal.toFixed(2)}`
+          ]],
+          theme: "grid",
+          styles: { halign: "center", fontSize: 10 },
+          headStyles: { fillColor: [0, 123, 255] },
+        });
+        let endY = doc.lastAutoTable.finalY + 10;
+        // Footer
+        doc.setFontSize(10);
+        doc.text(`For ${schoolInfo.schoolname}`, pageWidth - 70, endY + 10);
+        doc.setFontSize(8);
+        doc.text("This is a computer-generated receipt and does not require any signature.", pageWidth / 2, endY + 20, { align: "center" });
+        // Save PDF
+        doc.save(`fees_${firstRecord.rollno}_receipt_${receipt_no}.pdf`);
+      }
+    }catch(error){
+      toast.error("⚠️ Server error, please try again later!");
+      console.error("Error:", error);
+    }
+    // Get the first record for student details (they are same for all months)
+  };
   return (
     <div>
       <ToastContainer position="top-right" autoClose={2000} />
@@ -309,7 +347,7 @@ export const Report = () => {
                     <th>Roll No.</th>
                     <th>Student Name</th>
                     <th>Month</th>
-                    <th>Time and Date</th>
+                    <th>Amount</th>
                     <th>Fees Status</th>
                   </tr>
                 </thead>
@@ -319,7 +357,7 @@ export const Report = () => {
                       <td>{mth.rollno}</td>
                       <td>{mth.studentname}</td>
                       <td>{mth.month_name}</td>
-                      <td>{mth.timeRecord}</td>
+                      <td>₹{mth.amount}</td>
                       <td style={{ color: mth.status === "Paid" ? "green" : "red" }}>
                         {mth.status}
                       </td>
@@ -421,20 +459,6 @@ export const Report = () => {
               ⬅ Back to Students
             </button>
             <br />
-            <button
-              onClick={() =>
-                handleReceipt(
-                  selectedStudent.rollno,
-                  selectedStudent.studentname,
-                  selectedStudent.classid,
-                  selectedStudent.classsession
-                )
-              }
-              className="downloadbtn"
-            >
-              ⬇️ Get Fees Receipt
-            </button>
-            <br />
             <h3>
               📊 Fees Status for {selectedStudent.studentname} ({selectedStudent.rollno}) (
               {selectedStudent.classid} - {selectedStudent.classsession})
@@ -449,6 +473,7 @@ export const Report = () => {
                       <th>Amount</th>
                       <th>Status</th>
                       <th>Date</th>
+                      <th>Receipt No.</th>
                       <th>Receipt</th>
                     </tr>
                   </thead>
@@ -456,24 +481,22 @@ export const Report = () => {
                     {feeStatus.map((student, idx) => (
                       <tr key={idx}>
                         <td>{student.month_name}</td>
-                        <td>{student.amount}</td>
+                        <td>₹{student.amount}</td>
                         <td style={{color: student.status === "Paid" ? "green" : "red",}}>
                           {student.status}
                         </td>
                         <td>{student.status === "Paid" ? student.timeRecord : "⚠️ Not Available"}</td>
+                        <td>{student.receipt_no}</td>
                         <td>
                           {student.status === "Paid" && (
                             <button
                               className="download-icon"
-                              onClick={() =>
-                                handleMonthRowReceipt(
-                                  student.rollno,
-                                  student.studentname,
-                                  selectedClass.classid,
-                                  selectedClass.classsession,
-                                  student.month_name,
-                                  student.amount )}
-                             title="Download Fee Receipt">💾</button>)}
+                              onClick={() => generatePDF(student.receipt_no)}
+                              title="Download Monthly Receipt"
+                            >
+                              💾
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

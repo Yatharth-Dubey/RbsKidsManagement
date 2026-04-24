@@ -14,7 +14,7 @@ export const ViewStructure = () => {
     const classsession = sessionStorage.getItem("sessionkey")
     const fetchclasses = async () => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         setclasses(response.data.result || []);
       } catch (error) {
         console.log("Error fetching classes:", error);
@@ -28,7 +28,7 @@ export const ViewStructure = () => {
     let classid = classref.current.value;
     let classsession = sessionref.current.value;
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/view-structure`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}api.php?endpoint=view-structure`, {
         classid,
         classsession,
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
@@ -91,9 +91,6 @@ export const ViewStructure = () => {
                   <th>Class No</th>
                   <th>Class</th>
                   <th>Session</th>
-                  <th>January</th>
-                  <th>February</th>
-                  <th>March</th>
                   <th>April</th>
                   <th>May</th>
                   <th>June</th>
@@ -103,6 +100,9 @@ export const ViewStructure = () => {
                   <th>October</th>
                   <th>November</th>
                   <th>December</th>
+                  <th>January</th>
+                  <th>February</th>
+                  <th>March</th>
                 </tr>
               </thead>
               <tbody>
@@ -111,9 +111,6 @@ export const ViewStructure = () => {
                     <td data-label="Class No">{row.classno}</td>
                     <td data-label="Class">{row.class}</td>
                     <td data-label="Session">{row.classsession}</td>
-                    <td data-label="January">{row.january}</td>
-                    <td data-label="February">{row.february}</td>
-                    <td data-label="March">{row.march}</td>
                     <td data-label="April">{row.april}</td>
                     <td data-label="May">{row.may}</td>
                     <td data-label="June">{row.june}</td>
@@ -123,6 +120,9 @@ export const ViewStructure = () => {
                     <td data-label="October">{row.october}</td>
                     <td data-label="November">{row.november}</td>
                     <td data-label="December">{row.december}</td>
+                    <td data-label="January">{row.january}</td>
+                    <td data-label="February">{row.february}</td>
+                    <td data-label="March">{row.march}</td>
                   </tr>
                 ))}
               </tbody>

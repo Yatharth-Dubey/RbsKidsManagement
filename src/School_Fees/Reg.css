@@ -283,3 +283,24 @@ select:focus {
     grid-template-columns: 1fr 1fr;
   }
 }
+.edit-toggle-btn {
+  background-color: #ff0000;
+  font-weight: 700;
+  font-size: 15px;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
+}
+.edit-toggle-btn:hover {
+  background-color: #fce588;
+  color: black;
+}
+.flex-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

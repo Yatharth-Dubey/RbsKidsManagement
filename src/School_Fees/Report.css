@@ -115,6 +115,7 @@
 
   .Reportbox {
     width: 100%;
+    height: 50px;
     max-width: none;
     padding: 15px 20px;
   }

@@ -152,7 +152,18 @@
   align-items: center;
   justify-content: flex-start;
   padding: 50px 20px;
-  animation: fadeIn 0.9s ease-in-out, gradientBG 20s ease infinite;;
+  animation: fadeIn 0.9s ease-in-out, gradientBG 20s ease infinite;
+}
+.settings-pannel{
+  flex: 1;
+  background: linear-gradient(-45deg, #a4d7de, #ffffff, #e0edfb, #a6d5f7);
+  background-size: 400% 400%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 50px 20px;
+  animation: fadeIn 0.9s ease-in-out, gradientBG 20s ease infinite;
 }
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }

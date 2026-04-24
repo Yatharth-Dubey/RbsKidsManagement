@@ -14,7 +14,7 @@ export const Reg = () => {
     let classsession = sessionref.current.value;
     const fetchclasses = async () => {
       try{
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}api.php?endpoint=StudentReg/fetch`, {classsession}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
         setclasses(response.data.result || []);
       }catch(error){
         console.log("Error fetching classes:", error);
@@ -25,12 +25,14 @@ export const Reg = () => {
   }, []);
   const rollref = useRef();
   const studentref = useRef();
+  const genderref = useRef();
   const motherref = useRef();
   const fatherref = useRef();
   const classref = useRef();
   const sessionref = useRef();
   const residenceref = useRef();
   const phoneref = useRef();
+  const relaxref = useRef();
   const navi = useNavigate();
   const handleExcelUpload = (e) => {
     const file = e.target.files[0];
@@ -49,7 +51,7 @@ export const Reg = () => {
   };
   const handleBulk = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/reg/bulk`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}api.php?endpoint=reg/bulk`, {
         students: excelData, // send all excel rows
       }, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       Swal.fire({icon: "success", title: "Bulk Upload Done!"});
@@ -64,19 +66,21 @@ export const Reg = () => {
     e.preventDefault();
     let rollno = rollref.current.value;
     let studentname = studentref.current.value;
+    let gender = genderref.current.value;
     let mothername = motherref.current.value;
     let fathername = fatherref.current.value;
     let classid = classref.current.value;
     let classsession = sessionref.current.value;
     let residence = residenceref.current.value;
     let phone = phoneref.current.value;
+    let relaxation = relaxref.current.value;
     let now = new Date();
     let time = now.toLocaleTimeString();
     let date = now.toLocaleDateString();
     let milliseconds = now.getMilliseconds().toString().padStart(3, "0"); // always 3 digits
     let timeStamp = `Date: ${date}, Time: ${time}.${milliseconds}`;
     try{
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/reg`, {rollno, studentname, mothername, fathername, classid, classsession, residence, phone, timeRecord: timeStamp}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}api.php?endpoint=reg`, {rollno, studentname, gender, mothername, fathername, classid, classsession, residence, phone, relaxation, timeRecord: timeStamp}, {headers:{Authorization: `Bearer ${sessionStorage.getItem("token")}`},});
       console.log(response.data);
       if(response.data.status === true){
         Swal.fire({icon: "success", title: "Student Registered!"});
@@ -147,6 +151,14 @@ export const Reg = () => {
                   placeholder="Enter Student's Name"
                 />
               </div>
+              <div>
+                <label>Gender</label>
+                <select ref={genderref} required >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
             </div>
           </div>
           {/* Personal Info Section */}
@@ -178,6 +190,15 @@ export const Reg = () => {
                   name="phone"
                   ref={phoneref}
                   placeholder="Enter Phone No."
+                />
+              </div>
+              <div>
+                <label>Relaxation</label>
+                <input
+                  type="text"
+                  name="phone"
+                  ref={relaxref}
+                  placeholder="Enter Relaxation %"
                 />
               </div>
               <div className="address-field">

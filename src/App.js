@@ -7,6 +7,7 @@ import { Report } from "./School_Fees/Report";
 import { Structure } from "./School_Fees/Structure";
 import { ViewStructure } from "./School_Fees/ViewStructure";
 import { About } from "./School_Fees/About";
+import Settings from "./School_Fees/Settings";
 
 
 function App() {
@@ -15,6 +16,8 @@ function App() {
       <Routes>
         {/* Main Admin/Login route */}
         <Route path="/" element={<Admin />} />
+        {/* Settings route */}
+        <Route path="/set" element={<Settings />} />
 
         {/* Parent route with nested children */}
         <Route path="/StudentReg" element={<StudentReg />}>
@@ -23,7 +26,7 @@ function App() {
           <Route path="Fees" element={<Fees />} />
           <Route path="Report" element={<Report />} />
           <Route path="Structure" element={<Structure />} />
-          <Route path="ViewStructure" element={<ViewStructure />} />
+          {/* <Route path="ViewStructure" element={<ViewStructure />} /> */}
         </Route>
       </Routes>
     </Router>

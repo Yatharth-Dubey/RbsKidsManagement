@@ -6,10 +6,10 @@ export const About=()=> {
     <div className="about-container">
       <div className="about-card">
         <h1><strong>Hi, I Am Yatharth Dubey</strong></h1>
-        <p>
+        {/* <p>
           I am currently pursuing my <strong>B.Tech in Computer Science & Engineering</strong>, 
           with a keen interest in <strong>software development, web technologies, and AI-powered solutions</strong>.
-        </p>
+        </p> */}
         <p>
           This web application is one of my projects where I focused on solving a real-world 
           problem faced by institutions — <strong>efficiently managing student fee records</strong>.

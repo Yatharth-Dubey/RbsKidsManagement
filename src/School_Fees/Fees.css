@@ -55,25 +55,6 @@
   box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
   transform: scale(1.02);
 }
-
-/* ===== Button ===== */
-.submit-btn {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 10px;
-}
-
-.submit-btn:hover {
-  background: #0056b3;
-  transform: translateY(-2px);
-}
-
 /* ===== Table ===== */
 .table-container {
   overflow-x: auto;
@@ -125,10 +106,72 @@
   color: #2c3e50;
 }
 
+/* ===== Payment Popup Overlay ===== */
+.payment-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ===== Payment Popup Box ===== */
+.payment-popup {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 25px 30px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  animation: popupSlide 0.3s ease;
+}
+
+.payment-popup h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.payment-popup select,
+.payment-popup input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  transition: 0.3s ease;
+}
+
+.payment-popup select:focus,
+.payment-popup input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+}
+
+/* ===== Popup Actions ===== */
+.popup-actions {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+}
+
 /* ===== Animations ===== */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-20px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popupSlide {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* ===== Responsive ===== */
@@ -149,6 +192,11 @@
   .report-table td {
     font-size: 14px;
     padding: 8px;
+  }
+
+  .payment-popup {
+    width: 300px;
+    padding: 20px;
   }
 }
 
@@ -174,6 +222,10 @@
 
   .report-table {
     min-width: 100%;
+  }
+
+  .payment-popup {
+    width: 280px;
   }
 }
 
@@ -209,4 +261,38 @@
   .total-section h3 {
     font-size: 16px;
   }
+
+  .payment-popup {
+    width: 250px;
+    padding: 15px;
+  }
+
+  .payment-popup h3 {
+    font-size: 18px;
+  }
+
+  .payment-popup select,
+  .payment-popup input {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+.relax-section {
+  margin-top: 10px;
+  background: #f4faff;
+  padding: 10px;
+  border-radius: 8px;
+}
+.applybtn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.applybtn:hover {
+  background-color: #0056b3;
 }
