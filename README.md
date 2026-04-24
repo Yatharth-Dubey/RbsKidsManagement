@@ -41,6 +41,6 @@ A full-stack school management system currently used by a real institution to ma
 ## ⚙️ Installation
 
 ```bash
-git clone https://github.com/Yatharth-Dubey/kidspay
+git clone https://github.com/Yatharth-Dubey/RbsKidsManagement
 npm install
 npm start
